@@ -122,16 +122,6 @@ def update_dist_matrix(index, dist_matrix):
     return new_dist_matrix
 
 
-def terminate(dist_matrix):
-    i, j, m = 0, 1, 2
-
-    d_vi = (1/2) * (dist_matrix[i][j] + dist_matrix[i][m] - dist_matrix[j][m])
-    d_vj = (1/2) * (dist_matrix[i][j] + dist_matrix[j][m] - dist_matrix[i][m])
-    d_vm = (1/2) * (dist_matrix[i][m] + dist_matrix[j][m] - dist_matrix[i][j])
-
-    return d_vi, d_vj, d_vm
-
-
 def newickify(node_to_children, root_node):
     visited_nodes = set()
 
