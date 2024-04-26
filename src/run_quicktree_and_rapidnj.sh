@@ -19,12 +19,20 @@ do
         # get the filename without the path
         filename=$(basename "$file")
 
+        # Start time recording
+        StartTime=$(date +%s.%N)
+
         # run quicktree on the file
-        quicktree -in m "$file" > "$OutputFileLocation/quicktree_$filename"
+        quicktree -in m "$file" > "$OutputFileLocation/quicktree_$filename.newick"
         
+        EndTime=$(date +%s.%N)
+        ElapsedTime=$(awk "BEGIN {print $EndTime - $StartTime}")
+
+
+
         # print status message
-        echo "Ran quicktree on $filename"
-    
+        echo "Ran quicktree on $filename.newick"
+        echo -e "$filename\t quicktree\t $ElapsedTime" >> "$OutputFileLocation/runtime.txt"
     else
         # print message indicating that the file is skipped
         echo "Skipping file: $file"
@@ -49,12 +57,19 @@ do
         # Get the filename without the path
         filename=$(basename "$file")
 
+        # Start time recording
+        StartTime=$(date +%s.%N)
+
         # Run quicktree on the file
-        ./bin/rapidnj -i pd "$file" > "$OutputFileLocation/rapidnj_$filename"
+        ./bin/rapidnj -i pd "$file" > "$OutputFileLocation/rapidnj_$filename.newick"
         
+        # Elapsed time
+        EndTime=$(date +%s.%N)
+        ElapsedTime=$(awk "BEGIN {print $EndTime - $StartTime}")
+
         # Print status message
-        echo "Ran rapidnj on $filename"
-    
+        echo "Ran rapidnj on $filename.newick"
+        echo -e "$filename\t rapidnj\t $ElapsedTime" >> "$OutputFileLocation/runtime.txt"
     else
         # Print message indicating that the file is skipped
         echo "Skipping file: $file"
@@ -63,3 +78,7 @@ done
 
 
 echo "All files processed for rapidnj."
+
+
+# Run rfdist.py on all the prior generated files
+
