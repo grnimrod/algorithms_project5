@@ -33,10 +33,11 @@ def initiate_dist_matrix(file):
     labels = []
 
     for index, line in enumerate(lines_sep):
-        parsed_line = line.split()
-        label = parsed_line[0]
-        labels.append(label)
-        dist_matrix[index, :] = parsed_line[1:]
+        if line != "":
+            parsed_line = line.split()
+            label = parsed_line[0]
+            labels.append(label)
+            dist_matrix[index, :] = parsed_line[1:]
 
     return dist_matrix, labels
 
@@ -83,7 +84,7 @@ def calc_dist_from_orig_to_joined_node(index, dist_matrix):
         r_j += dist_matrix[j][k]
 
     # Calculating distances from the two joined leaves to the new inner node
-    d_ki = round((1/2) * dist_matrix[i][j] + (1/(2 * (dim - 2))) * (r_i - r_j), 2)
+    d_ki = round((1/2) * dist_matrix[i][j] + (1/(2 * (dim - 2))) * (r_i - r_j), 5)
     d_kj = dist_matrix[i][j] - d_ki
 
     return d_ki, d_kj
@@ -128,9 +129,9 @@ def calculate_remaining_distances(dist_matrix):
     i, j, m = 0, 1, 2
 
     # m is the last inner node inserted before the termination
-    d_vi = round((1/2) * (dist_matrix[i][j] + dist_matrix[i][m] - dist_matrix[j][m]), 2)
-    d_vj = round((1/2) * (dist_matrix[i][j] + dist_matrix[j][m] - dist_matrix[i][m]), 2)
-    d_vm = round((1/2) * (dist_matrix[i][m] + dist_matrix[j][m] - dist_matrix[i][j]), 2)
+    d_vi = round((1/2) * (dist_matrix[i][j] + dist_matrix[i][m] - dist_matrix[j][m]), 5)
+    d_vj = round((1/2) * (dist_matrix[i][j] + dist_matrix[j][m] - dist_matrix[i][m]), 5)
+    d_vm = round((1/2) * (dist_matrix[i][m] + dist_matrix[j][m] - dist_matrix[i][j]), 5)
 
     return d_vi, d_vj, d_vm
 
@@ -209,7 +210,9 @@ def neighbor_joining(path_to_dist_matrix):
     return newick_output
 
 
-treedata = neighbor_joining("./data/example_slide4.phy")
+# treedata = neighbor_joining("./data/example_slide4.phy")
+# treedata = neighbor_joining("./data/89_Adeno_E3_CR1.phy")
+treedata = neighbor_joining("./data/304_A1_Propeptide.phy")
 handle = StringIO(treedata)
 tree = Phylo.read(handle, "newick")
 
