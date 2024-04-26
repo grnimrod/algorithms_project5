@@ -1,4 +1,5 @@
 import numpy as np
+from io import StringIO
 from Bio import Phylo
 
 """
@@ -208,4 +209,8 @@ def neighbor_joining(path_to_dist_matrix):
     return newick_output
 
 
-print(neighbor_joining("./data/example_slide4.phy"))
+treedata = neighbor_joining("./data/example_slide4.phy")
+handle = StringIO(treedata)
+tree = Phylo.read(handle, "newick")
+
+Phylo.draw(tree, branch_labels = lambda c: c.branch_length if c.branch_length else "")
