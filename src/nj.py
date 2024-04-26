@@ -81,8 +81,9 @@ def calc_dist_from_orig_to_joined_node(index, dist_matrix):
         r_i += dist_matrix[i][k]
         r_j += dist_matrix[j][k]
 
-    d_ki = round((1/2) * (dist_matrix[i][j] + r_i - r_j), 2)
-    d_kj = round((1/2) * (dist_matrix[i][j] - r_i + r_j), 2)
+    # Calculating distances from the two joined leaves to the new inner node
+    d_ki = round((1/2) * dist_matrix[i][j] + (1/(2 * (dim - 2))) * (r_i - r_j), 2)
+    d_kj = dist_matrix[i][j] - d_ki
 
     return d_ki, d_kj
 
@@ -122,6 +123,17 @@ def update_dist_matrix(index, dist_matrix):
     return new_dist_matrix
 
 
+def calculate_remaining_distances(dist_matrix):
+    i, j, m = 0, 1, 2
+
+    # m is the last inner node inserted before the termination
+    d_vi = round((1/2) * (dist_matrix[i][j] + dist_matrix[i][m] - dist_matrix[j][m]), 2)
+    d_vj = round((1/2) * (dist_matrix[i][j] + dist_matrix[j][m] - dist_matrix[i][m]), 2)
+    d_vm = round((1/2) * (dist_matrix[i][m] + dist_matrix[j][m] - dist_matrix[i][j]), 2)
+
+    return d_vi, d_vj, d_vm
+
+
 def newickify(node_to_children, root_node):
     visited_nodes = set()
 
@@ -154,32 +166,46 @@ def neighbor_joining(path_to_dist_matrix):
     """
     D, labels = initiate_dist_matrix(path_to_dist_matrix)
     newick_dict = {}
-    counter = 1
+    inner_node_counter = 1
 
-    while D.shape[0] > 1:
+    while D.shape[0] > 3:
         dict_nested = {}
+
         Q = calculate_Q(D)
         min_index = find_lowest_pair(Q)
-        print(f"Joining {min_index[0]} and {min_index[1]}")
-        print(f"List before joining nodes: {labels}")
         dist_to_joined = calc_dist_from_orig_to_joined_node(min_index, D)
-        print(f"Distances: {dist_to_joined}")
+
+        # Creating nested dictionary to the two joined leaves and their distance from the new inner node
         dict_nested[labels[min_index[0]]] = dist_to_joined[0]
         dict_nested[labels[min_index[1]]] = dist_to_joined[1]
-        inner_node = f"J{counter}"
+
+        inner_node = f"J{inner_node_counter}"
         newick_dict[inner_node] = dict_nested
+
+        # Updating the labels list by adding the new inner node and getting rid of the two joined leaves
         labels.append(inner_node)
         labels = [labels[i] for i in range(len(labels)) if i not in min_index]
+
         new_dist_matrix = update_dist_matrix(min_index, D)
-        print("List after joining nodes")
-        print(labels)
         D = new_dist_matrix
-        counter += 1
-        print(f"Tree in Newick format: {newick_dict}")
-    
-    newick_output = newickify(newick_dict, 'J4')
+        inner_node_counter += 1
+
+    # Termination
+    d_vi, d_vj, d_vm = calculate_remaining_distances(D)
+
+    inner_node = f"J{inner_node_counter}"
+
+    dict_nested = {}
+    dict_nested[labels[0]] = d_vi
+    dict_nested[labels[1]] = d_vj
+    dict_nested[labels[2]] = d_vm
+
+    newick_dict[inner_node] = dict_nested
+    print(newick_dict)
+
+    newick_output = newickify(newick_dict, inner_node)
 
     return newick_output
 
 
-neighbor_joining("./data/example_slide4.phy")
+print(neighbor_joining("./data/example_slide4.phy"))
