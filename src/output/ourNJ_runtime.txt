@@ -1,0 +1,6 @@
+File_name	runtime
+214_Arena_glycoprot.phy	547.2368133068085
+304_A1_Propeptide.phy	2221.41220498085
+401_DDE.phy	6747.990622758865
+494_Astro_capsid.phy	15677.358083724976
+89_Adeno_E3_CR1.phy	17.401156425476074
