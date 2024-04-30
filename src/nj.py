@@ -2,25 +2,6 @@ import numpy as np
 from io import StringIO
 from Bio import Phylo
 
-"""
-We need to calculate the Q matrix at every iteration of the NJ algorithm
-We need to have Ri and Rj calculated in order to obtain the Q matrix
-Ri and Rj: the sum of all the distances of the remaining "labels"/"sequences" leading into Ri/Rj
-    Qij = (n - 2) * Dij - Ri - Rj
-The non-identical pair with the lowest net divergence are joined to form a new node u
-Then we need to calculate the distances from u to the rest of the nodes
-
-Steps:
-1. Having D, calculate Q matrix
-2. Pick the pair with lowest score
-3. Calculate distances from original nodes to newly created node
-    d(f, u) = 1/2 (Dfg) + 1/(2 * (n - 2)) * [Rf - Rg]
-    d(g, u) = d(f, g) - d(f, u)
-4. Calculate new distance matrix using
-    Duk = 1/2 [Dfk + Dgk - Dfg]
-5. Repeat steps 1-4 until we have three remaining nodes in D
-"""
-
 def initiate_dist_matrix(file):
     raw = open(file, "r").read()
     lines_sep = raw.split('\n')
@@ -162,10 +143,6 @@ def newickify(node_to_children, root_node):
 
 
 def neighbor_joining(path_to_dist_matrix):
-    """
-    Create the input in Newick format somehow, then just make Phylo eat that and draw the tree
-    With each addition of a joined node, append an item to the 'labels' list
-    """
     D, labels = initiate_dist_matrix(path_to_dist_matrix)
     newick_dict = {}
     inner_node_counter = 1
@@ -210,9 +187,9 @@ def neighbor_joining(path_to_dist_matrix):
     return newick_output
 
 
-# treedata = neighbor_joining("./data/example_slide4.phy")
+treedata = neighbor_joining("./data/example_slide4.phy")
 # treedata = neighbor_joining("./data/89_Adeno_E3_CR1.phy")
-treedata = neighbor_joining("./data/304_A1_Propeptide.phy")
+# treedata = neighbor_joining("./data/304_A1_Propeptide.phy")
 handle = StringIO(treedata)
 tree = Phylo.read(handle, "newick")
 

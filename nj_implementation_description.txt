@@ -1,0 +1,28 @@
+Description of implementation of nj:
+
+initiate_dist_matrix:
+This function takes the path leading to the distance matrix as input, initiates a NumPy array matching the dimensions specified by the first line of the Phylip-like distance matrix format, then separates the rest of the file into a list called "labels", which contains the taxa and a distance matrix containing the distance information and returns these.
+
+calculate_Q:
+This function takes the distance matrix created in the step before as input and creates the Q matrix that we're minimizing over in the neighbor-joining algorithm. It calculates each element in the Q matrix based on the equation specified by the articles on neighbor-joining.
+
+find_lowest_pair:
+This function takes the Q matrix as input, finds the minimum value in it and returns the coordinates of it.
+
+calc_dist_from_orig_to_joined_node:
+This function takes the indices of the minimum value found by the find_lowest_pair function and the distance matrix as input and calculates the distances from both leaves that the algorithm is joining in its current iteration to the inner node that the algorithm is adding to the labels in place of the two joined leaves. These distances are used later on as the branch lengths between nodes of the tree.
+
+update_dist_matrix:
+This function takes the indices of the minimum value in the Q matrix and the distance matrix as input. First, it initiates the new distance matrix with dimensions of the distance matrix taken as input minus 1 in each direction, as we are deleting two rows and columns (the leaves that we're joining) and adding one row and column, corresponding to the inner node created when we join the two leaves. Then the function gets rid of the columns and rows corresponding to the minimum value's coordinates by creating a temporary matrix that serves as a mask to be applied on the distance matrix, resulting in not keeping those elements in the matrix that have False values in the mask. Then it creates a new distance matrix, copies the values of the temporary matrix into it, then adds a row and a column to the end of the matrix, with the values of the elements contained in these being calculated the way it's specified in the articles on neighbor-joining.
+
+calculate_remaining_distances:
+This function takes the distance matrix as input and calculates the distances between a theoretical inner node and the last three remaining leaves in the labels list.
+
+newickify:
+This function transforms the nested dictionary structure that we're using in the meat of the neighbor-joining algorithm to Newick format.
+
+neighbor_joining:
+This function initiates the distance matrix and the labels list with the initiate_dist_matrix function, then by entering a while loop and daisy chaining our already defined pieces, we create a nested dictionary structure corresponding to how the tree hierarchy is built up during the neighbor-joining algorithm. When our distance matrix shrinks down to dimensions of 3 by 3, we exit the while loop and step into the termination phase of the algorithm, calculating the distance between the three remaining nodes in the distance matrix and the inner node that was added to the dictionary in the last iteration of the while loop, finishing up the tree hierarchy structure sufficiently. Afterwards, we apply our newickify function on the finished nested dictionary, transforming it to Newick format. We use this output to draw the phylogenetic tree by using the Phylo module of the Biopython library.
+
+Status of work:
+The algorithm works as expected on all example distance matrix files, although it is extremely time consuming, probably due to not utilizing any heuristics and such that could result in a meeningful speedup. The newickify function being recursive probably also takes a hefty amount of time to run.
